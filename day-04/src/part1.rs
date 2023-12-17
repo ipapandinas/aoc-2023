@@ -1,30 +1,23 @@
+use std::collections::HashSet;
+
 pub fn process(input: &str, offset: usize) -> i32 {
     input
         .lines()
-        .filter_map(|x| {
+        .map(|x| {
             if let Some(pos) = x.find(" | ") {
                 let (reference_str, game_str) = x.split_at(pos);
-                let reference = reference_str[offset..].split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect::<Vec<i32>>();
+                let reference: HashSet<_> = reference_str[offset..].split_whitespace().map(|x| x.parse::<i32>().unwrap()).collect();
                 let game = game_str[" | ".len()..].split_whitespace().map(|x| x.parse::<i32>().unwrap());
 
-                let mut count = 0;
-                for num in game {
-                    let occurences = reference.iter().filter(|&&x| x == num).count();
-                    match occurences {
-                        0 => (),
-                        _ => {
-                            count += 1;
-                        }
-                    }
-                }
-
+                let count = game.filter(|num| reference.contains(num)).count();
                 if count > 0 {
-                    return Some(2_i32.pow(count - 1));
+                    2_i32.pow(count as u32 - 1)
+                } else {
+                    0
                 }
-
-                return Some(0)
+            } else {
+                0
             }
-            None
         })
         .sum::<i32>()
 }
